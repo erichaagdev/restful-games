@@ -1,4 +1,4 @@
-package com.gorlah.demo.restfulgames
+package com.gorlah.demo.restfulgames.config
 
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext

@@ -1,11 +1,10 @@
-package com.gorlah.demo.restfulgames
+package com.gorlah.demo.restfulgames.config
 
 import org.springframework.boot.autoconfigure.cassandra.CassandraProperties
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.cassandra.config.AbstractReactiveCassandraConfiguration
 import org.springframework.data.cassandra.config.SchemaAction
 import org.springframework.data.cassandra.core.cql.keyspace.CreateKeyspaceSpecification
-import org.springframework.data.cassandra.core.cql.keyspace.KeyspaceOption
 import org.springframework.data.cassandra.repository.config.EnableReactiveCassandraRepositories
 
 @Configuration
@@ -21,7 +20,6 @@ class ReactiveCassandraConfiguration(
     override fun getSchemaAction() = SchemaAction.valueOf(cassandraProperties.schemaAction.uppercase())
     override fun getKeyspaceCreations() = CreateKeyspaceSpecification
         .createKeyspace(cassandraProperties.keyspaceName)
-        .with(KeyspaceOption.DURABLE_WRITES, true)
         .withSimpleReplication()
         .ifNotExists()
         .let { listOf(it) }
