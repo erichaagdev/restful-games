@@ -52,7 +52,7 @@ class GameControllerTests {
             user = "gorlah"
         )
 
-        gameRepository.insert(gameById)
+        gameRepository.insert(gameById).block()
 
         val expected = Game(
             createdOn = 1234567890,

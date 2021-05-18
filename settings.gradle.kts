@@ -6,3 +6,7 @@ pluginManagement {
 }
 
 rootProject.name = "restful-games"
+
+include("restful-games-client")
+include("restful-games-server")
+include("restful-games-commons")

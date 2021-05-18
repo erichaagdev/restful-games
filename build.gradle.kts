@@ -1,51 +1,41 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.4.5"
-    id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.5.0-RC"
-    kotlin("plugin.spring") version "1.5.0-RC"
+    id("org.springframework.boot") version "2.4.5" apply false
+    id("io.spring.dependency-management") version "1.0.11.RELEASE" apply true
+    kotlin("jvm") version "1.5.0-RC" apply false
+    kotlin("plugin.spring") version "1.5.0-RC" apply false
 }
 
-group = "com.gorlah.demo"
-java.sourceCompatibility = JavaVersion.VERSION_11
-
-repositories {
-    mavenCentral()
-    maven { url = uri("https://repo.spring.io/milestone") }
+allprojects {
+    group = "com.gorlah.demo"
 }
 
-dependencies {
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-    implementation("org.springframework.boot:spring-boot-starter-data-cassandra-reactive")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation(kotlin("reflect"))
-    implementation(kotlin("stdlib-jdk8"))
-    testImplementation("io.projectreactor:reactor-test")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:cassandra")
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:testcontainers")
-    testImplementation(kotlin("test"))
-}
+subprojects {
 
-dependencyManagement {
-    imports {
-        mavenBom("org.testcontainers:testcontainers-bom:1.15.3")
+    apply {
+        plugin("io.spring.dependency-management")
     }
-}
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = java.sourceCompatibility.toString()
+    repositories {
+        mavenCentral()
+        maven { url = uri("https://repo.spring.io/milestone") }
     }
-}
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+    dependencyManagement {
+        imports {
+            mavenBom("org.testcontainers:testcontainers-bom:1.15.3")
+        }
+    }
+
+    tasks.withType<KotlinCompile> {
+        kotlinOptions {
+            freeCompilerArgs = listOf("-Xjsr305=strict")
+            jvmTarget = JavaVersion.VERSION_11.toString()
+        }
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
+    }
 }

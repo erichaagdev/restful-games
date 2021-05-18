@@ -6,6 +6,5 @@ import java.util.UUID
 interface GameClient {
 
     fun createGame(createRequest: Game.CreateRequest): Mono<Game>
-
     fun getGame(gameId: UUID): Mono<Game>
 }

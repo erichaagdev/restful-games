@@ -5,9 +5,7 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import java.util.UUID
 
-class GameWebClient(
-    private val webClient: WebClient,
-) : GameClient {
+class GameWebClient(private val webClient: WebClient) : GameClient {
 
     override fun createGame(createRequest: Game.CreateRequest): Mono<Game> =
         webClient
