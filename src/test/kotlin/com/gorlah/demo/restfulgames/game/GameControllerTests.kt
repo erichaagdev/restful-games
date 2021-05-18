@@ -2,52 +2,69 @@ package com.gorlah.demo.restfulgames.game
 
 import com.gorlah.demo.restfulgames.game.Game.CreateRequest
 import com.gorlah.demo.restfulgames.util.IntegrationTest
-import org.junit.jupiter.api.Assertions
+import com.gorlah.demo.restfulgames.util.uuid
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.toEntity
+import kotlin.test.assertEquals
 
 @IntegrationTest
 class GameControllerTests {
 
     @LocalServerPort private lateinit var serverPort: String
-    private lateinit var webClient: WebClient
+    @Autowired private lateinit var gameRepository: GameRepository
+    private lateinit var gameClient: GameClient
 
     @BeforeEach
     fun beforeEach() {
-        webClient = WebClient.builder()
+        gameClient = WebClient.builder()
             .baseUrl("http://localhost:$serverPort")
             .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
             .build()
+            .let { GameWebClient(it) }
     }
 
     @Test
-    fun `when creating and fetching game then response returns game`() {
+    fun `when creating a game, then response returns game`() {
         val createRequest = CreateRequest(
             type = GameType.TIC_TAC_TOE,
             user = "gorlah"
         )
 
-        val game = createGame(createRequest)
-            .log()
-            .block()
+        val game = gameClient
+            .createGame(createRequest)
+            .block()!!
 
-        Assertions.assertNotNull(game)
-        Assertions.assertEquals(HttpStatus.OK, game!!.statusCode)
+        assertEquals(GameType.TIC_TAC_TOE, game.type)
+        assertEquals("gorlah",game.user)
     }
 
-    fun createGame(createRequest: CreateRequest) =
-        webClient
-            .post()
-            .uri("/games")
-            .bodyValue(createRequest)
-            .retrieve()
-            .toEntity<Game>()
-            .map { it.headers.location!! }
-            .flatMap { webClient.get().uri(it.path).retrieve().toEntity<Game>() }
+    @Test
+    fun `given game exists, when fetching game, then response returns expected game`() {
+        val gameById = GameById(
+            createdOn = 1234567890,
+            id = uuid(0),
+            type = GameType.TIC_TAC_TOE,
+            user = "gorlah"
+        )
+
+        gameRepository.insert(gameById)
+
+        val expected = Game(
+            createdOn = 1234567890,
+            id = uuid(0),
+            type = GameType.TIC_TAC_TOE,
+            user = "gorlah"
+        )
+
+        val actual = gameClient
+            .getGame(uuid(0))
+            .block()!!
+
+        assertEquals(expected, actual)
+    }
 }
